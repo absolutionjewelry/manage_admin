@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/store.dart';
@@ -117,7 +116,6 @@ class _StoreCardState extends ConsumerState<StoreCard> {
   bool isLoading = false;
 
   edit(context, ref) async {
-    log('editing ${widget.store.id}');
     await showDialog<bool>(
       context: context,
       builder: (context) => Dialog(child: StoreForm(store: widget.store)),

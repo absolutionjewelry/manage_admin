@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'dart:developer';
+
 part 'token.g.dart';
 
 @JsonSerializable()
@@ -14,12 +14,6 @@ class Token {
   Map<String, dynamic> toJson() => _$TokenToJson(this);
 
   bool get isValid {
-    log('value: $value');
-    log('expiresAt: $expiresAt');
-    log('DateTime.now(): ${DateTime.now()}');
-    log(
-      'expiresAt!.isBefore(DateTime.now()): ${expiresAt!.isBefore(DateTime.now())}',
-    );
     if (value == null) return false;
     if (expiresAt == null) return false;
     if (expiresAt!.isBefore(DateTime.now())) return false;
