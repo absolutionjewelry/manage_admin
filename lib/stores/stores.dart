@@ -1,9 +1,11 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/store.dart';
 import '../providers/stores.dart';
 import '../providers/auth.dart';
 import '../app.dart';
+import 'form.dart';
 
 class StoresView extends ConsumerStatefulWidget {
   const StoresView({super.key});
@@ -64,7 +66,9 @@ class _StoresViewState extends ConsumerState<StoresView> {
                         onPressed:
                             () => showDialog(
                               context: context,
-                              builder: (context) => const CreateStoreDialog(),
+                              builder:
+                                  (context) =>
+                                      CreateStoreDialog(store: Store()),
                             ),
                         icon: Icon(Icons.add),
                         label: Text('Create a store'),
@@ -92,7 +96,7 @@ class _StoresViewState extends ConsumerState<StoresView> {
         onPressed:
             () => showDialog(
               context: context,
-              builder: (context) => const CreateStoreDialog(),
+              builder: (context) => CreateStoreDialog(store: Store()),
             ),
         child: const Icon(Icons.add),
       ),
@@ -111,6 +115,39 @@ class StoreCard extends ConsumerStatefulWidget {
 
 class _StoreCardState extends ConsumerState<StoreCard> {
   bool isLoading = false;
+
+  edit(context, ref) async {
+    log('editing ${widget.store.id}');
+    await showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(child: StoreForm(store: widget.store)),
+    );
+
+    final store = ref.read(updateStoreProvider);
+
+    store.when(
+      data: (data) async {
+        await ref.read(storesProvider.notifier).getStores();
+
+        setState(() {
+          isLoading = false;
+        });
+      },
+      error: (error, stack) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.toString())));
+        setState(() {
+          isLoading = false;
+        });
+      },
+      loading: () {
+        setState(() {
+          isLoading = true;
+        });
+      },
+    );
+  }
 
   delete(context, ref) async {
     final response = await showDialog<bool>(
@@ -139,8 +176,8 @@ class _StoreCardState extends ConsumerState<StoreCard> {
         isLoading = true;
       });
 
-      await ref.read(storesProvider.notifier).deleteStore(widget.store.id);
-      final response = ref.read(storesProvider);
+      await ref.read(deleteStoreProvider.notifier).deleteStore(widget.store.id);
+      final response = ref.read(deleteStoreProvider);
 
       response.when(
         data: (data) async {
@@ -202,7 +239,7 @@ class _StoreCardState extends ConsumerState<StoreCard> {
               itemBuilder:
                   (context) => [
                     PopupMenuItem(
-                      onTap: () {},
+                      onTap: () => edit(context, ref),
                       child: Row(children: [Icon(Icons.edit), Text('Edit')]),
                     ),
                     PopupMenuItem(
@@ -233,142 +270,13 @@ class _StoreCardState extends ConsumerState<StoreCard> {
   }
 }
 
-class CreateStoreDialog extends ConsumerStatefulWidget {
-  const CreateStoreDialog({super.key});
+class CreateStoreDialog extends StatelessWidget {
+  final Store store;
 
-  @override
-  ConsumerState<CreateStoreDialog> createState() => _CreateStoreDialogState();
-}
-
-class _CreateStoreDialogState extends ConsumerState<CreateStoreDialog> {
-  final nameController = TextEditingController();
-  final descriptionController = TextEditingController();
-  bool isLoading = false;
-  String error = '';
-
-  save(context) async {
-    if (nameController.text.isEmpty) {
-      setState(() {
-        error = 'Name is required';
-      });
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    await ref
-        .read(createStoreProvider.notifier)
-        .createStore(
-          name: nameController.text,
-          description: descriptionController.text,
-        );
-
-    final store = ref.read(createStoreProvider);
-
-    store.when(
-      data: (data) async {
-        await ref.read(storesProvider.notifier).getStores();
-
-        setState(() {
-          isLoading = false;
-        });
-
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Store created successfully')));
-      },
-      error: (error, stack) {
-        setState(() {
-          error = error.toString();
-          isLoading = false;
-        });
-      },
-      loading: () {
-        setState(() {
-          isLoading = true;
-        });
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    descriptionController.dispose();
-    super.dispose();
-  }
+  const CreateStoreDialog({super.key, required this.store});
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  Text(
-                    'Create a store',
-                    style: Theme.of(context).textTheme.titleLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: nameController,
-                          decoration: const InputDecoration(labelText: 'Name'),
-                          onSubmitted: (value) => save(context),
-                        ),
-                        TextField(
-                          controller: descriptionController,
-                          decoration: const InputDecoration(
-                            labelText: 'Description',
-                          ),
-                          maxLines: 5,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                        FilledButton.icon(
-                          onPressed: () => save(context),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Create Store'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (error.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.all(16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.errorContainer,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        error,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onError,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-    );
+    return Dialog(child: StoreForm(store: store));
   }
 }

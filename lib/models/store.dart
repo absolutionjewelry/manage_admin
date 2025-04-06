@@ -8,11 +8,7 @@ class Store {
   final String? storeName;
   final String? storeDescription;
 
-  Store({
-    required this.id,
-    required this.storeName,
-    required this.storeDescription,
-  });
+  Store({this.id, this.storeName, this.storeDescription});
 
   factory Store.fromJson(Map<String, dynamic> json) => _$StoreFromJson(json);
 
