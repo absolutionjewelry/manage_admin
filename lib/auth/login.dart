@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../requests/endpoints.dart';
 import '../providers/token.dart';
 import '../providers/auth.dart';
-import '../dashboard/dashboard.dart';
+import '../app.dart';
 import '../models/token.dart';
 import '../auth/register.dart';
 
@@ -71,7 +71,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
     ref.read(authProvider.notifier).state = token;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => DashboardView()),
+      MaterialPageRoute(builder: (context) => const App()),
     );
   }
 

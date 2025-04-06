@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth/login.dart';
 import 'providers/auth.dart';
-import 'dashboard/dashboard.dart';
+import 'stores/stores.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
@@ -19,7 +19,7 @@ class App extends ConsumerWidget {
       home:
           ref.watch(authProvider) == null
               ? const LoginView()
-              : const DashboardView(),
+              : const StoresView(),
     );
   }
 }
