@@ -58,7 +58,8 @@ class _StoresViewState extends ConsumerState<StoresView> {
                       ),
                       itemCount: data.length,
                       itemBuilder:
-                          (context, index) => StoreCard(store: data[index]),
+                          (context, index) =>
+                              StoreCard(key: GlobalKey(), store: data[index]),
                     )
                     : Center(
                       child: FilledButton.icon(
@@ -180,10 +181,13 @@ class _StoreCardState extends ConsumerState<StoreCard> {
       response.when(
         data: (data) async {
           await ref.read(storesProvider.notifier).getStores();
+          setState(() {
+            isLoading = false;
+          });
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Store deleted successfully')),
           );
-
           Navigator.of(context).pop();
         },
         error: (error, stack) {

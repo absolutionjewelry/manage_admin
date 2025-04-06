@@ -90,7 +90,7 @@ class DeleteStoreNotifier extends AsyncNotifier<void> {
     final body = jsonDecode(response.body);
 
     if (body["error"] == null) {
-      ref.read(storesProvider.notifier).getStores();
+      await ref.read(storesProvider.notifier).getStores();
       return;
     }
 
