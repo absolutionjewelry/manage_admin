@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import '../models/store.dart';
@@ -46,6 +45,39 @@ class StoresNotifier extends AsyncNotifier<List<Store>> {
     if (body["error"] == null) {
       final stores = body["data"] as List<dynamic>;
       state = AsyncValue.data(stores.map((e) => Store.fromJson(e)).toList());
+      return;
+    }
+
+    state = AsyncValue.error(body["message"], StackTrace.current);
+  }
+
+  Future<void> deleteStore(String id) async {
+    final token = ref.read(authProvider);
+    if (token == null) {
+      state = AsyncValue.error("You're not logged in", StackTrace.current);
+      return;
+    }
+
+    if (!token.isValid) {
+      state = AsyncValue.error(
+        "Invalid token. Please log in again.",
+        StackTrace.current,
+      );
+      return;
+    }
+
+    final response = await http.delete(
+      Uri.parse("$storesPath/$id"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${token.value}",
+      },
+    );
+
+    final body = jsonDecode(response.body);
+
+    if (body["error"] == null) {
+      ref.read(storesProvider.notifier).getStores();
       return;
     }
 

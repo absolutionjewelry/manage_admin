@@ -100,19 +100,133 @@ class _StoresViewState extends ConsumerState<StoresView> {
   }
 }
 
-class StoreCard extends StatelessWidget {
+class StoreCard extends ConsumerStatefulWidget {
   final Store store;
 
   const StoreCard({super.key, required this.store});
 
   @override
+  ConsumerState<StoreCard> createState() => _StoreCardState();
+}
+
+class _StoreCardState extends ConsumerState<StoreCard> {
+  bool isLoading = false;
+
+  delete(context, ref) async {
+    final response = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Delete Store'),
+            content: Text(
+              'Are you sure you want to delete ${widget.store.storeName}?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+    );
+
+    if (response == true) {
+      setState(() {
+        isLoading = true;
+      });
+
+      await ref.read(storesProvider.notifier).deleteStore(widget.store.id);
+      final response = ref.read(storesProvider);
+
+      response.when(
+        data: (data) async {
+          await ref.read(storesProvider.notifier).getStores();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Store deleted successfully')),
+          );
+
+          Navigator.of(context).pop();
+        },
+        error: (error, stack) {
+          setState(() {
+            isLoading = false;
+          });
+        },
+        loading: () {
+          setState(() {
+            isLoading = true;
+          });
+        },
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Store deleted successfully')),
+      );
+
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Card(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
         children: [
-          Text(store.storeName ?? '', textAlign: TextAlign.center),
-          Text(store.storeDescription ?? '', textAlign: TextAlign.center),
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Container(
+                padding: const EdgeInsets.all(16),
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.store.storeName ?? '',
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      widget.store.storeDescription ?? '',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: PopupMenuButton(
+              itemBuilder:
+                  (context) => [
+                    PopupMenuItem(
+                      onTap: () {},
+                      child: Row(children: [Icon(Icons.edit), Text('Edit')]),
+                    ),
+                    PopupMenuItem(
+                      onTap: () => delete(context, ref),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          Text(
+                            'Delete',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+            ),
+          ),
         ],
       ),
     );
