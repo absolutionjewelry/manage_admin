@@ -8,6 +8,7 @@ import '../providers/auth.dart';
 import '../app.dart';
 import '../models/token.dart';
 import '../auth/register.dart';
+import '../auth/reset_password.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -134,7 +135,14 @@ class _LoginViewState extends ConsumerState<LoginView> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               TextButton(
-                                onPressed: () {},
+                                onPressed:
+                                    () => Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                const ResetPasswordView(),
+                                      ),
+                                    ),
                                 child: const Text('Forgot Password?'),
                               ),
                               FilledButton(
@@ -150,7 +158,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Don\'t have an account?'),
+                      Text("Don't have an account?"),
                       TextButton(
                         onPressed:
                             () => Navigator.of(context).pushReplacement(
