@@ -5,6 +5,7 @@ import '../providers/stores.dart';
 import '../providers/auth.dart';
 import '../app.dart';
 import 'form.dart';
+import 'store.dart';
 
 class StoresView extends ConsumerStatefulWidget {
   const StoresView({super.key});
@@ -217,21 +218,30 @@ class _StoreCardState extends ConsumerState<StoreCard> {
         children: [
           isLoading
               ? const Center(child: CircularProgressIndicator())
-              : Container(
-                padding: const EdgeInsets.all(16),
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.store.storeName ?? '',
-                      textAlign: TextAlign.center,
+              : InkWell(
+                onTap:
+                    () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder:
+                            (context) => StoreView(storeId: widget.store.id!),
+                      ),
                     ),
-                    Text(
-                      widget.store.storeDescription ?? '',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  width: double.infinity,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        widget.store.storeName ?? '',
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        widget.store.storeDescription ?? '',
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
           Positioned(

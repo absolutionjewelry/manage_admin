@@ -198,3 +198,49 @@ class UpdateStoreNotifier extends AsyncNotifier<Store?> {
     state = AsyncValue.error(body["message"], StackTrace.current);
   }
 }
+
+final getStoreProvider = AsyncNotifierProvider<GetStoreNotifier, Store?>(
+  () => GetStoreNotifier(),
+);
+
+class GetStoreNotifier extends AsyncNotifier<Store?> {
+  GetStoreNotifier() : super();
+
+  @override
+  Store? build() {
+    return null;
+  }
+
+  Future<void> getStore(String id) async {
+    final token = ref.read(authProvider);
+    if (token == null) {
+      state = AsyncValue.error("You're not logged in", StackTrace.current);
+      return;
+    }
+
+    if (!token.isValid) {
+      state = AsyncValue.error(
+        "Invalid token. Please log in again.",
+        StackTrace.current,
+      );
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse("$storesPath/$id"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${token.value}",
+      },
+    );
+
+    final body = jsonDecode(response.body);
+
+    if (body["error"] == null) {
+      state = AsyncValue.data(Store.fromJson(body["data"]));
+      return;
+    }
+
+    state = AsyncValue.error(body["message"], StackTrace.current);
+  }
+}
