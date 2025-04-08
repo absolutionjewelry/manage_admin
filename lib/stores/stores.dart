@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/store.dart';
 import '../providers/stores.dart';
-import '../providers/auth.dart';
-import '../app.dart';
 import '../ui/screen_container.dart';
 import '../ui/screen_navigation_bar.dart';
 import 'form.dart';
@@ -45,7 +43,10 @@ class _StoresViewState extends ConsumerState<StoresView> {
         navigationBar: ScreenNavigationBar(title: 'Stores'),
         child:
             isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? SizedBox(
+                  height: MediaQuery.of(context).size.height - 104,
+                  child: const Center(child: CircularProgressIndicator()),
+                )
                 : stores.when(
                   data:
                       (data) =>
@@ -100,14 +101,18 @@ class _StoresViewState extends ConsumerState<StoresView> {
                       () => const Center(child: CircularProgressIndicator()),
                 ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-            () => showDialog(
-              context: context,
-              builder: (context) => CreateStoreDialog(store: Store()),
-            ),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton:
+          isLoading
+              ? null
+              : FloatingActionButton.extended(
+                onPressed:
+                    () => showDialog(
+                      context: context,
+                      builder: (context) => CreateStoreDialog(store: Store()),
+                    ),
+                label: const Text('Create store'),
+                icon: const Icon(Icons.add),
+              ),
     );
   }
 }

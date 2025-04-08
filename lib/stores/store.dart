@@ -40,15 +40,15 @@ class _StoreViewState extends ConsumerState<StoreView> {
 
     return store.when(
       data: (store) {
-        if (store == null) {
-          return const Scaffold(body: Center(child: Text('Store not found')));
-        }
         return Scaffold(
           body: ScreenContainer(
             navigationBar: ScreenNavigationBar(title: 'Store'),
             child:
                 isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? SizedBox(
+                      height: MediaQuery.of(context).size.height - 104,
+                      child: const Center(child: CircularProgressIndicator()),
+                    )
                     : SizedBox(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height - 104,
