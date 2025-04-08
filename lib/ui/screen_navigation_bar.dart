@@ -64,10 +64,10 @@ class ScreenNavigationBar extends ConsumerWidget {
               if (auth != null && showLogout == true)
                 ScreenNavigationItem(
                   icon: Icons.logout,
-                  onPressed: () {
-                    signOut(ref);
-                    Navigator.pushReplacement(
-                      context,
+                  onPressed: () async {
+                    final navigator = Navigator.of(context);
+                    await signOut(ref);
+                    navigator.pushReplacement(
                       MaterialPageRoute(builder: (context) => LoginView()),
                     );
                   },

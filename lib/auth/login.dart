@@ -9,6 +9,9 @@ import '../app.dart';
 import '../models/token.dart';
 import '../auth/register.dart';
 import '../auth/reset_password.dart';
+import '../ui/content_container.dart';
+import '../ui/screen_container.dart';
+import '../ui/screen_navigation_bar.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -86,92 +89,101 @@ class _LoginViewState extends ConsumerState<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login'), centerTitle: true),
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        AutofillGroup(
-                          child: TextField(
-                            controller: usernameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Username',
-                              prefixIcon: Icon(Icons.person_rounded),
+      body: ScreenContainer(
+        navigationBar: ScreenNavigationBar(title: 'Login'),
+        child:
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                  children: [
+                    ContentContainer(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      child: Column(
+                        children: [
+                          AutofillGroup(
+                            child: TextField(
+                              controller: usernameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Username',
+                                prefixIcon: Icon(Icons.person_rounded),
+                              ),
+                              onSubmitted: (value) => login(context),
+                              autofillHints: const [AutofillHints.username],
                             ),
-                            onSubmitted: (value) => login(context),
-                            autofillHints: const [AutofillHints.username],
                           ),
-                        ),
-                        AutofillGroup(
-                          child: TextField(
-                            controller: passwordController,
-                            obscureText: !isShowingPassword,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: Icon(Icons.password_rounded),
-                              suffixIcon: IconButton(
-                                onPressed:
-                                    () => setState(() {
-                                      isShowingPassword = !isShowingPassword;
-                                    }),
-                                icon:
-                                    isShowingPassword
-                                        ? const Icon(Icons.visibility)
-                                        : const Icon(Icons.visibility_off),
+                          AutofillGroup(
+                            child: TextField(
+                              controller: passwordController,
+                              obscureText: !isShowingPassword,
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                prefixIcon: Icon(Icons.password_rounded),
+                                suffixIcon: IconButton(
+                                  onPressed:
+                                      () => setState(() {
+                                        isShowingPassword = !isShowingPassword;
+                                      }),
+                                  icon:
+                                      isShowingPassword
+                                          ? const Icon(Icons.visibility)
+                                          : const Icon(Icons.visibility_off),
+                                ),
                               ),
+                              onSubmitted: (value) => login(context),
+                              autofillHints: const [AutofillHints.password],
                             ),
-                            onSubmitted: (value) => login(context),
-                            autofillHints: const [AutofillHints.password],
                           ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                onPressed:
-                                    () => Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                const ResetPasswordView(),
-                                      ),
-                                    ),
-                                child: const Text('Forgot Password?'),
-                              ),
-                              FilledButton(
-                                onPressed: () => login(context),
-                                child: const Text('Login'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Don't have an account?"),
-                      TextButton(
-                        onPressed:
-                            () => Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => RegisterView(),
-                              ),
+                          Container(
+                            margin: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton(
+                                  onPressed:
+                                      () =>
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      const ResetPasswordView(),
+                                            ),
+                                          ),
+                                  child: const Text('Forgot Password?'),
+                                ),
+                                FilledButton(
+                                  onPressed: () => login(context),
+                                  child: const Text('Login'),
+                                ),
+                              ],
                             ),
-                        child: Text('Register'),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    ContentContainer(
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surface.withAlpha(200),
+                      margin: const EdgeInsets.only(top: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Don't have an account?"),
+                          TextButton(
+                            onPressed:
+                                () => Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => RegisterView(),
+                                  ),
+                                ),
+                            child: Text('Register'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+      ),
     );
   }
 }

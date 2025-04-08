@@ -7,6 +7,9 @@ import 'login.dart';
 import 'package:http/http.dart' as http;
 import '../requests/endpoints.dart';
 import 'package:flutter/services.dart';
+import '../ui/screen_container.dart';
+import '../ui/screen_navigation_bar.dart';
+import '../ui/content_container.dart';
 
 class RegisterView extends ConsumerStatefulWidget {
   const RegisterView({super.key});
@@ -102,103 +105,111 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register'), centerTitle: true),
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        AutofillGroup(
-                          child: TextField(
-                            controller: firstNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'First Name',
-                              prefixIcon: Icon(Icons.text_fields_rounded),
-                            ),
-                            onSubmitted: (value) => register(context),
-                            autofillHints: const [AutofillHints.givenName],
-                          ),
-                        ),
-                        AutofillGroup(
-                          child: TextField(
-                            controller: lastNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Last Name',
-                              prefixIcon: Icon(Icons.text_fields_rounded),
-                            ),
-                            onSubmitted: (value) => register(context),
-                            autofillHints: const [AutofillHints.familyName],
-                          ),
-                        ),
-                        AutofillGroup(
-                          child: TextField(
-                            controller: usernameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Username',
-                              prefixIcon: Icon(Icons.person_rounded),
-                            ),
-                            onSubmitted: (value) => register(context),
-                            autofillHints: const [AutofillHints.username],
-                          ),
-                        ),
-                        AutofillGroup(
-                          child: TextField(
-                            controller: passwordController,
-                            obscureText: !isShowingPassword,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: Icon(Icons.password_rounded),
-                              suffixIcon: IconButton(
-                                onPressed:
-                                    () => setState(() {
-                                      isShowingPassword = !isShowingPassword;
-                                    }),
-                                icon:
-                                    isShowingPassword
-                                        ? const Icon(Icons.visibility)
-                                        : const Icon(Icons.visibility_off),
+      body: ScreenContainer(
+        navigationBar: ScreenNavigationBar(title: 'Register'),
+        child:
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                  children: [
+                    ContentContainer(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      child: Column(
+                        children: [
+                          AutofillGroup(
+                            child: TextField(
+                              controller: firstNameController,
+                              decoration: const InputDecoration(
+                                labelText: 'First Name',
+                                prefixIcon: Icon(Icons.text_fields_rounded),
                               ),
+                              onSubmitted: (value) => register(context),
+                              autofillHints: const [AutofillHints.givenName],
                             ),
-                            onSubmitted: (value) => register(context),
-                            autofillHints: const [AutofillHints.password],
                           ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              FilledButton(
-                                onPressed: () => register(context),
-                                child: const Text('Register'),
+                          AutofillGroup(
+                            child: TextField(
+                              controller: lastNameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Last Name',
+                                prefixIcon: Icon(Icons.text_fields_rounded),
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Already have an account?'),
-                      TextButton(
-                        onPressed:
-                            () => Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => LoginView(),
-                              ),
+                              onSubmitted: (value) => register(context),
+                              autofillHints: const [AutofillHints.familyName],
                             ),
-                        child: const Text('Login'),
+                          ),
+                          AutofillGroup(
+                            child: TextField(
+                              controller: usernameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Username',
+                                prefixIcon: Icon(Icons.person_rounded),
+                              ),
+                              onSubmitted: (value) => register(context),
+                              autofillHints: const [AutofillHints.username],
+                            ),
+                          ),
+                          AutofillGroup(
+                            child: TextField(
+                              controller: passwordController,
+                              obscureText: !isShowingPassword,
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                prefixIcon: Icon(Icons.password_rounded),
+                                suffixIcon: IconButton(
+                                  onPressed:
+                                      () => setState(() {
+                                        isShowingPassword = !isShowingPassword;
+                                      }),
+                                  icon:
+                                      isShowingPassword
+                                          ? const Icon(Icons.visibility)
+                                          : const Icon(Icons.visibility_off),
+                                ),
+                              ),
+                              onSubmitted: (value) => register(context),
+                              autofillHints: const [AutofillHints.password],
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(top: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                FilledButton(
+                                  onPressed: () => register(context),
+                                  child: const Text('Register'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    ContentContainer(
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surface.withAlpha(200),
+                      margin: const EdgeInsets.only(top: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Already have an account?'),
+                          TextButton(
+                            onPressed:
+                                () => Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => LoginView(),
+                                  ),
+                                ),
+                            child: const Text('Login'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+      ),
     );
   }
 }

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manage_admin/auth/login.dart';
 import '../app.dart';
 import '../providers/auth.dart' as auth;
+import '../ui/screen_container.dart';
+import '../ui/screen_navigation_bar.dart';
+import '../ui/content_container.dart';
 
 class ResetPasswordView extends ConsumerStatefulWidget {
   const ResetPasswordView({super.key});
@@ -71,15 +74,15 @@ class _ResetPasswordState extends ConsumerState<ResetPasswordView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset Password'), centerTitle: true),
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Container(
-                padding: const EdgeInsets.all(16),
-                child: Column(
+      body: ScreenContainer(
+        navigationBar: ScreenNavigationBar(title: 'Reset Password'),
+        child:
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
                   children: [
-                    Container(
+                    ContentContainer(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
@@ -151,24 +154,26 @@ class _ResetPasswordState extends ConsumerState<ResetPasswordView> {
                               onSubmitted: (value) => resetPassword(context),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          FilledButton.icon(
-                            onPressed: () => resetPassword(context),
-                            icon: const Icon(Icons.send),
-                            label: const Text('Reset Password'),
+                          Container(
+                            margin: const EdgeInsets.only(top: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                FilledButton.icon(
+                                  onPressed: () => resetPassword(context),
+                                  icon: const Icon(Icons.send),
+                                  label: const Text('Reset Password'),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    Container(
-                      width: double.infinity,
+                    ContentContainer(
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surface.withAlpha(200),
                       margin: const EdgeInsets.only(top: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -206,7 +211,7 @@ class _ResetPasswordState extends ConsumerState<ResetPasswordView> {
                       ),
                   ],
                 ),
-              ),
+      ),
     );
   }
 }

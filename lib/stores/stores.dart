@@ -4,8 +4,11 @@ import '../models/store.dart';
 import '../providers/stores.dart';
 import '../providers/auth.dart';
 import '../app.dart';
+import '../ui/screen_container.dart';
+import '../ui/screen_navigation_bar.dart';
 import 'form.dart';
 import 'store.dart';
+import '../ui/navigation_card.dart';
 
 class StoresView extends ConsumerStatefulWidget {
   const StoresView({super.key});
@@ -15,6 +18,8 @@ class StoresView extends ConsumerStatefulWidget {
 }
 
 class _StoresViewState extends ConsumerState<StoresView> {
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -22,7 +27,13 @@ class _StoresViewState extends ConsumerState<StoresView> {
   }
 
   Future<void> getStores() async {
+    setState(() {
+      isLoading = true;
+    });
     await ref.read(storesProvider.notifier).getStores();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -30,68 +41,64 @@ class _StoresViewState extends ConsumerState<StoresView> {
     final stores = ref.watch(storesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Stores'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              await signOut(ref);
-              navigator.pushReplacement(
-                MaterialPageRoute(builder: (context) => const App()),
-              );
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
-      body: stores.when(
-        data:
-            (data) =>
-                data.isNotEmpty
-                    ? GridView.builder(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.all(16),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:
-                            MediaQuery.of(context).size.width ~/ 300,
-                      ),
-                      itemCount: data.length,
-                      itemBuilder:
-                          (context, index) =>
-                              StoreCard(key: GlobalKey(), store: data[index]),
-                    )
-                    : Center(
-                      child: FilledButton.icon(
-                        onPressed:
-                            () => showDialog(
-                              context: context,
-                              builder:
-                                  (context) =>
-                                      CreateStoreDialog(store: Store()),
+      body: ScreenContainer(
+        navigationBar: ScreenNavigationBar(title: 'Stores'),
+        child:
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : stores.when(
+                  data:
+                      (data) =>
+                          data.isNotEmpty
+                              ? GridView.builder(
+                                shrinkWrap: true,
+                                padding: const EdgeInsets.all(16),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount:
+                                          MediaQuery.of(context).size.width ~/
+                                          300,
+                                    ),
+                                itemCount: data.length,
+                                itemBuilder:
+                                    (context, index) => StoreCard(
+                                      key: GlobalKey(),
+                                      store: data[index],
+                                    ),
+                              )
+                              : Center(
+                                child: FilledButton.icon(
+                                  onPressed:
+                                      () => showDialog(
+                                        context: context,
+                                        builder:
+                                            (context) => CreateStoreDialog(
+                                              store: Store(),
+                                            ),
+                                      ),
+                                  icon: Icon(Icons.add),
+                                  label: Text('Create a store'),
+                                ),
+                              ),
+                  error:
+                      (error, stack) => Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: SelectableText(
+                            error.toString(),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onError,
                             ),
-                        icon: Icon(Icons.add),
-                        label: Text('Create a store'),
+                          ),
+                        ),
                       ),
-                    ),
-        error:
-            (error, stack) => Center(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(16),
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
                 ),
-                child: SelectableText(
-                  error.toString(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onError,
-                  ),
-                ),
-              ),
-            ),
-        loading: () => const Center(child: CircularProgressIndicator()),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed:
@@ -213,71 +220,28 @@ class _StoreCardState extends ConsumerState<StoreCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Stack(
-        children: [
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : InkWell(
-                onTap:
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder:
-                            (context) => StoreView(storeId: widget.store.id!),
-                      ),
-                    ),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.store.storeName ?? '',
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        widget.store.storeDescription ?? '',
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: PopupMenuButton(
-              itemBuilder:
-                  (context) => [
-                    PopupMenuItem(
-                      onTap: () => edit(context, ref),
-                      child: Row(children: [Icon(Icons.edit), Text('Edit')]),
-                    ),
-                    PopupMenuItem(
-                      onTap: () => delete(context, ref),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.delete,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          Text(
-                            'Delete',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+    return NavigationCard(
+      title: widget.store.storeName ?? '',
+      subtitle: widget.store.storeDescription ?? '',
+      onTap:
+          () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => StoreView(storeId: widget.store.id!),
             ),
           ),
-        ],
-      ),
+      actions: [
+        NavigationCardAction.icon(
+          icon: Icons.edit,
+          label: 'Edit',
+          onTap: () => edit(context, ref),
+        ),
+        NavigationCardAction.icon(
+          icon: Icons.delete,
+          color: Theme.of(context).colorScheme.error,
+          label: 'Delete',
+          onTap: () => delete(context, ref),
+        ),
+      ],
     );
   }
 }

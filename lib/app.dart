@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'app_theme_data.dart';
 import 'auth/login.dart';
 import 'providers/auth.dart';
 import 'stores/stores.dart';
@@ -12,10 +13,7 @@ class App extends ConsumerWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-        useMaterial3: true,
-      ),
+      theme: AppThemeData.theme,
       home:
           ref.watch(authProvider) == null
               ? const LoginView()
