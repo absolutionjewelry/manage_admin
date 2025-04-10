@@ -4,26 +4,28 @@ part 'product.g.dart';
 
 @JsonSerializable()
 class Product {
-  final String id;
-  final String productName;
-  final String productDescription;
-  final String productBasePrice;
-  final String productBaseCost;
-  final String productBaseQuantity;
-  final String createdAt;
-  final String updatedAt;
-  final String archivedAt;
+  final String? id;
+  final String? storeId;
+  final String? productName;
+  final String? productDescription;
+  final double? productBasePrice;
+  final double? productBaseCost;
+  final double? productBaseQuantity;
+  final String? createdAt;
+  final String? updatedAt;
+  final String? archivedAt;
 
   Product({
-    required this.id,
-    required this.productName,
-    required this.productDescription,
-    required this.productBasePrice,
-    required this.productBaseCost,
-    required this.productBaseQuantity,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.archivedAt,
+    this.id,
+    this.storeId,
+    this.productName,
+    this.productDescription,
+    this.productBasePrice,
+    this.productBaseCost,
+    this.productBaseQuantity,
+    this.createdAt,
+    this.updatedAt,
+    this.archivedAt,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) =>

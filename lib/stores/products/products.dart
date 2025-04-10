@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manage_admin/ui/navigation_card.dart';
+import '../../models/product.dart';
 import '../../providers/products.dart';
 import '../../ui/screen_container.dart';
 import '../../ui/screen_navigation_bar.dart';
+import 'form.dart';
+import 'product.dart';
 
 class ProductsView extends ConsumerStatefulWidget {
   final String storeId;
@@ -32,6 +36,19 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
     });
   }
 
+  Future<void> createProduct(context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => Dialog(
+            child: ProductForm(storeId: widget.storeId, product: Product()),
+          ),
+    );
+    if (result == true) {
+      getProducts();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(productsProvider);
@@ -55,31 +72,59 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
                                     MediaQuery.of(context).size.height - 104,
                                 child: Center(
                                   child: FilledButton.icon(
-                                    onPressed: () {},
+                                    onPressed: () => createProduct(context),
                                     icon: const Icon(Icons.add),
                                     label: const Text('Create Product'),
                                   ),
                                 ),
                               )
-                              : ListView.builder(
-                                itemCount: data.length,
-                                itemBuilder:
-                                    (context, index) =>
-                                        Text(data[index].productName),
+                              : SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                height:
+                                    MediaQuery.of(context).size.height - 104,
+                                child: GridView(
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount:
+                                            MediaQuery.of(context).size.width ~/
+                                            300,
+                                      ),
+                                  children:
+                                      data
+                                          .map(
+                                            (product) => NavigationCard(
+                                              title: product.productName ?? '',
+                                              subtitle:
+                                                  product.productDescription ??
+                                                  '',
+                                              onTap:
+                                                  () => Navigator.of(
+                                                    context,
+                                                  ).push(
+                                                    MaterialPageRoute(
+                                                      builder:
+                                                          (context) =>
+                                                              ProductView(
+                                                                product:
+                                                                    product,
+                                                              ),
+                                                    ),
+                                                  ),
+                                            ),
+                                          )
+                                          .toList(),
+                                ),
                               ),
                   error: (error, stack) => Text(error.toString()),
                   loading:
                       () => const Center(child: CircularProgressIndicator()),
                 ),
       ),
-      floatingActionButton:
-          isLoading
-              ? null
-              : FloatingActionButton.extended(
-                onPressed: () {},
-                label: const Text('Create Product'),
-                icon: const Icon(Icons.add),
-              ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => createProduct(context),
+        label: const Text('Create Product'),
+        icon: const Icon(Icons.add),
+      ),
     );
   }
 }
