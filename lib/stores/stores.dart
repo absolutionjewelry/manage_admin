@@ -40,7 +40,7 @@ class _StoresViewState extends ConsumerState<StoresView> {
 
     return Scaffold(
       body: ScreenContainer(
-        navigationBar: ScreenNavigationBar(title: 'Stores'),
+        navigationBar: ScreenNavigationBar(title: 'Stores', showBack: false),
         child:
             isLoading
                 ? SizedBox(

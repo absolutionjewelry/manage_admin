@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:manage_admin/ui/navigation_card.dart';
+import '../../stores/navigation.dart';
+import '../../ui/navigation_card.dart';
 import '../../models/product.dart';
 import '../../providers/products.dart';
 import '../../ui/screen_container.dart';
 import '../../ui/screen_navigation_bar.dart';
+import '../../ui/screen_navigation_drawer.dart';
 import 'form.dart';
 import 'product.dart';
 
@@ -52,10 +54,23 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(productsProvider);
-
     return Scaffold(
       body: ScreenContainer(
-        navigationBar: ScreenNavigationBar(title: 'Products'),
+        navigationBar: ScreenNavigationBar(
+          title: 'Products',
+          navigationItems: [
+            ...storeNavigation(storeId: widget.storeId, context: context),
+          ],
+        ),
+        navigationDrawer: ScreenNavigationDrawer(
+          children: [
+            ...storeNavigation(
+              storeId: widget.storeId,
+              context: context,
+              collapsed: false,
+            ),
+          ],
+        ),
         child:
             isLoading
                 ? SizedBox(
@@ -103,11 +118,13 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
                                                   ).push(
                                                     MaterialPageRoute(
                                                       builder:
-                                                          (context) =>
-                                                              ProductView(
-                                                                product:
-                                                                    product,
-                                                              ),
+                                                          (
+                                                            context,
+                                                          ) => ProductView(
+                                                            product: product,
+                                                            storeId:
+                                                                widget.storeId,
+                                                          ),
                                                     ),
                                                   ),
                                             ),

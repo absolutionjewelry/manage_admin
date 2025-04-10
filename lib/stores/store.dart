@@ -1,9 +1,12 @@
+import 'navigation.dart';
+
 import '../ui/navigation_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/stores.dart';
 import '../ui/screen_container.dart';
 import '../ui/screen_navigation_bar.dart';
+import '../ui/screen_navigation_drawer.dart';
 import 'products/products.dart';
 
 class StoreView extends ConsumerStatefulWidget {
@@ -42,7 +45,21 @@ class _StoreViewState extends ConsumerState<StoreView> {
       data: (store) {
         return Scaffold(
           body: ScreenContainer(
-            navigationBar: ScreenNavigationBar(title: 'Store'),
+            navigationBar: ScreenNavigationBar(
+              title: 'Store',
+              navigationItems: [
+                ...storeNavigation(storeId: store?.id ?? '', context: context),
+              ],
+            ),
+            navigationDrawer: ScreenNavigationDrawer(
+              children: [
+                ...storeNavigation(
+                  storeId: store?.id ?? '',
+                  context: context,
+                  collapsed: false,
+                ),
+              ],
+            ),
             child:
                 isLoading
                     ? SizedBox(
