@@ -23,11 +23,11 @@ class NavigationCardAction {
   });
 }
 
-class NavigationCard extends StatefulWidget {
+class NavigationCard extends StatelessWidget {
   final String title;
   final String? subtitle;
   final VoidCallback? onTap;
-  final NavigationCardLoading? onLoading;
+  final bool isLoading;
   final List<NavigationCardAction> actions;
 
   const NavigationCard({
@@ -35,36 +35,9 @@ class NavigationCard extends StatefulWidget {
     required this.title,
     this.subtitle,
     this.onTap,
-    this.onLoading,
     this.actions = const [],
+    this.isLoading = false,
   });
-
-  @override
-  State<NavigationCard> createState() => _NavigationCardState();
-}
-
-class _NavigationCardState extends State<NavigationCard> {
-  bool isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.onLoading != null) {
-      callOnLoading();
-    }
-  }
-
-  callOnLoading() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    await widget.onLoading!.call();
-
-    setState(() {
-      isLoading = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +48,7 @@ class _NavigationCardState extends State<NavigationCard> {
               : Stack(
                 children: [
                   InkWell(
-                    onTap: widget.onTap,
+                    onTap: onTap,
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       width: double.infinity,
@@ -83,26 +56,26 @@ class _NavigationCardState extends State<NavigationCard> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            widget.title,
+                            title,
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
-                          if (widget.subtitle != null)
+                          if (subtitle != null)
                             Text(
-                              widget.subtitle!,
+                              subtitle!,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                         ],
                       ),
                     ),
                   ),
-                  widget.actions.isNotEmpty
+                  actions.isNotEmpty
                       ? Positioned(
                         top: 0,
                         right: 0,
                         child: PopupMenuButton(
                           itemBuilder:
                               (context) =>
-                                  widget.actions
+                                  actions
                                       .map(
                                         (action) => PopupMenuItem(
                                           onTap: action.onTap,

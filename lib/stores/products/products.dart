@@ -21,6 +21,8 @@ class ProductsView extends ConsumerStatefulWidget {
 
 class _ProductsViewState extends ConsumerState<ProductsView> {
   bool isLoading = false;
+  bool isProductLoading = false;
+  Product? currentProduct;
 
   @override
   void initState() {
@@ -47,7 +49,77 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
           ),
     );
     if (result == true) {
-      getProducts();
+      await ref.read(productsProvider.notifier).getProducts(widget.storeId);
+    }
+  }
+
+  Future<void> editProduct(Product product) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => Dialog(
+            child: ProductForm(storeId: widget.storeId, product: product),
+          ),
+    );
+    if (result == true) {
+      await ref.read(productsProvider.notifier).getProducts(widget.storeId);
+    }
+  }
+
+  Future<void> deleteProduct(Product product) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Delete Product'),
+            content: const Text(
+              'Are you sure you want to delete this product?',
+            ),
+            actions: [
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).pop(false),
+                icon: const Icon(Icons.cancel),
+                label: const Text('Cancel'),
+              ),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).pop(true),
+                icon: const Icon(Icons.delete),
+                label: const Text('Delete'),
+              ),
+            ],
+          ),
+    );
+
+    if (result == true) {
+      setState(() {
+        isProductLoading = true;
+        currentProduct = product;
+      });
+      await ref
+          .read(deleteProductProvider.notifier)
+          .deleteProduct(storeId: widget.storeId, product: product);
+
+      final result = ref.read(deleteProductProvider);
+
+      result.when(
+        data: (data) async {
+          await ref.read(productsProvider.notifier).getProducts(widget.storeId);
+          setState(() {
+            isProductLoading = false;
+            currentProduct = null;
+          });
+        },
+        error: (error, stack) {
+          setState(() {
+            isProductLoading = false;
+            currentProduct = null;
+          });
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error.toString())));
+        },
+        loading: () {},
+      );
     }
   }
 
@@ -112,6 +184,10 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
                                               subtitle:
                                                   product.productDescription ??
                                                   '',
+                                              isLoading:
+                                                  isProductLoading &&
+                                                  currentProduct?.id ==
+                                                      product.id,
                                               onTap:
                                                   () => Navigator.of(
                                                     context,
@@ -127,6 +203,24 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
                                                           ),
                                                     ),
                                                   ),
+                                              actions: [
+                                                NavigationCardAction(
+                                                  icon: Icons.edit,
+                                                  label: 'Edit',
+                                                  onTap:
+                                                      () =>
+                                                          editProduct(product),
+                                                ),
+                                                NavigationCardAction(
+                                                  icon: Icons.delete,
+                                                  label: 'Delete',
+                                                  color: Colors.red,
+                                                  onTap:
+                                                      () => deleteProduct(
+                                                        product,
+                                                      ),
+                                                ),
+                                              ],
                                             ),
                                           )
                                           .toList(),

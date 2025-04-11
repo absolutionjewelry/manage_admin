@@ -101,3 +101,108 @@ class CreateProductProvider extends AsyncNotifier<Product?> {
     }
   }
 }
+
+final updateProductProvider =
+    AsyncNotifierProvider<UpdateProductNotifier, Product?>(
+      () => UpdateProductNotifier(),
+    );
+
+class UpdateProductNotifier extends AsyncNotifier<Product?> {
+  @override
+  Product? build() {
+    return null;
+  }
+
+  Future<void> updateProduct({
+    required String storeId,
+    required Product product,
+  }) async {
+    final token = ref.read(authProvider);
+
+    if (token == null) {
+      state = AsyncValue.error("You're not logged in", StackTrace.current);
+      return;
+    }
+
+    if (!token.isValid) {
+      state = AsyncValue.error("Invalid token", StackTrace.current);
+      return;
+    }
+
+    final productJson = jsonEncode(product.toJson());
+
+    try {
+      final response = await http.put(
+        Uri.parse('$storesPath/$storeId/products/${product.id}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${token.value}',
+        },
+        body: productJson,
+      );
+
+      final body = jsonDecode(response.body);
+
+      if (body["error"] == null) {
+        state = AsyncValue.data(Product.fromJson(body["data"]));
+        return;
+      }
+
+      state = AsyncValue.error(body["message"], StackTrace.current);
+    } catch (e) {
+      state = AsyncValue.error(e.toString(), StackTrace.current);
+    }
+  }
+}
+
+final deleteProductProvider =
+    AsyncNotifierProvider<DeleteProductNotifier, Product?>(
+      () => DeleteProductNotifier(),
+    );
+
+class DeleteProductNotifier extends AsyncNotifier<Product?> {
+  @override
+  Product? build() {
+    return null;
+  }
+
+  Future<void> deleteProduct({
+    required String storeId,
+    required Product product,
+  }) async {
+    final token = ref.read(authProvider);
+
+    if (token == null) {
+      state = AsyncValue.error("You're not logged in", StackTrace.current);
+      return;
+    }
+
+    if (!token.isValid) {
+      state = AsyncValue.error("Invalid token", StackTrace.current);
+      return;
+    }
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$storesPath/$storeId/products/${product.id}'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${token.value}',
+        },
+      );
+
+      final body = jsonDecode(response.body);
+
+      if (body["error"] == null) {
+        state = AsyncValue.data(product);
+        return;
+      }
+
+      state = AsyncValue.error(body["message"], StackTrace.current);
+    } catch (e, stacktrace) {
+      print('Error deleting product: $e');
+      print('Stacktrace: $stacktrace');
+      state = AsyncValue.error(e.toString(), stacktrace);
+    }
+  }
+}

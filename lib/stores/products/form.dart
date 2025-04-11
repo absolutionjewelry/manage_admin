@@ -64,26 +64,45 @@ class _ProductFormState extends ConsumerState<ProductForm> {
     setState(() {
       isLoading = true;
     });
-    await ref
-        .read(createProductProvider.notifier)
-        .createProduct(
-          storeId: widget.storeId,
-          product: Product(
-            id: widget.product.id,
+
+    if (widget.product.id == null) {
+      await ref
+          .read(createProductProvider.notifier)
+          .createProduct(
             storeId: widget.storeId,
-            productName: nameController.text,
-            productDescription: descriptionController.text,
-            productBasePrice: double.parse(priceController.text),
-            productBaseCost: double.parse(costController.text),
-            productBaseQuantity: double.parse(quantityController.text),
-          ),
-        );
+            product: Product(
+              id: widget.product.id,
+              storeId: widget.storeId,
+              productName: nameController.text,
+              productDescription: descriptionController.text,
+              productBasePrice: double.parse(priceController.text),
+              productBaseCost: double.parse(costController.text),
+              productBaseQuantity: double.parse(quantityController.text),
+            ),
+          );
+    } else {
+      await ref
+          .read(updateProductProvider.notifier)
+          .updateProduct(
+            storeId: widget.storeId,
+            product: widget.product.copyWith(
+              productName: nameController.text,
+              productDescription: descriptionController.text,
+              productBasePrice: double.parse(priceController.text),
+              productBaseCost: double.parse(costController.text),
+              productBaseQuantity: double.parse(quantityController.text),
+            ),
+          );
+    }
 
     setState(() {
       isLoading = false;
     });
 
-    final result = ref.read(createProductProvider);
+    final result =
+        widget.product.id == null
+            ? ref.read(createProductProvider)
+            : ref.read(updateProductProvider);
     result.when(
       data: (data) {
         Navigator.of(context).pop(true);
