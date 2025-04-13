@@ -40,7 +40,21 @@ class _StoresViewState extends ConsumerState<StoresView> {
 
     return Scaffold(
       body: ScreenContainer(
-        navigationBar: ScreenNavigationBar(title: 'Stores', showBack: false),
+        navigationBar: ScreenNavigationBar(
+          title: 'Stores',
+          showBack: false,
+          actions: [
+            IconButton.filled(
+              tooltip: 'Create store',
+              onPressed:
+                  () => showDialog(
+                    context: context,
+                    builder: (context) => CreateStoreDialog(store: Store()),
+                  ),
+              icon: Icon(Icons.add),
+            ),
+          ],
+        ),
         child:
             isLoading
                 ? SizedBox(
@@ -101,18 +115,6 @@ class _StoresViewState extends ConsumerState<StoresView> {
                       () => const Center(child: CircularProgressIndicator()),
                 ),
       ),
-      floatingActionButton:
-          isLoading
-              ? null
-              : FloatingActionButton.extended(
-                onPressed:
-                    () => showDialog(
-                      context: context,
-                      builder: (context) => CreateStoreDialog(store: Store()),
-                    ),
-                label: const Text('Create store'),
-                icon: const Icon(Icons.add),
-              ),
     );
   }
 }

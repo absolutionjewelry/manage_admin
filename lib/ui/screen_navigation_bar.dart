@@ -12,6 +12,7 @@ class ScreenNavigationBar extends ConsumerStatefulWidget {
   final Color? titleColor;
   final bool? showLogout;
   final bool? showBack;
+  final bool? showMenu;
 
   const ScreenNavigationBar({
     super.key,
@@ -22,6 +23,7 @@ class ScreenNavigationBar extends ConsumerStatefulWidget {
     this.titleColor,
     this.showLogout = true,
     this.showBack = true,
+    this.showMenu = false,
   });
 
   @override
@@ -30,12 +32,26 @@ class ScreenNavigationBar extends ConsumerStatefulWidget {
 }
 
 class _ScreenNavigationBarState extends ConsumerState<ScreenNavigationBar> {
+  findScaffold(BuildContext context) {
+    return context.findRootAncestorStateOfType<ScaffoldState>();
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Row(
       children: [
+        if (widget.showMenu == true)
+          IconButton(
+            onPressed: () {
+              final scaffold = findScaffold(context);
+              if (scaffold != null) {
+                scaffold.openDrawer();
+              }
+            },
+            icon: const Icon(Icons.menu, color: Colors.white),
+          ),
         Spacer(),
         if (isMobile) SizedBox(width: 40),
         Container(
@@ -89,18 +105,30 @@ class _ScreenNavigationBarState extends ConsumerState<ScreenNavigationBar> {
                     ),
                   ),
                   Expanded(child: SizedBox.shrink()),
-                  ...(widget.actions ?? []),
-                  if (auth != null && widget.showLogout == true)
-                    ScreenNavigationItem(
-                      icon: Icons.logout,
-                      onPressed: () async {
-                        final navigator = Navigator.of(context);
-                        await signOut(ref);
-                        navigator.pushReplacement(
-                          MaterialPageRoute(builder: (context) => LoginView()),
-                        );
-                      },
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(20),
                     ),
+                    child: Row(
+                      children: [
+                        ...(widget.actions ?? []),
+                        if (auth != null && widget.showLogout == true)
+                          ScreenNavigationItem(
+                            icon: Icons.logout,
+                            onPressed: () async {
+                              final navigator = Navigator.of(context);
+                              await signOut(ref);
+                              navigator.pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) => LoginView(),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ],

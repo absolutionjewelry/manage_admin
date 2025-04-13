@@ -126,116 +126,116 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(productsProvider);
-    return Scaffold(
-      body: ScreenContainer(
-        navigationBar: ScreenNavigationBar(
-          title: 'Products',
-          navigationItems: [
-            ...storeNavigation(storeId: widget.storeId, context: context),
-          ],
-        ),
-        navigationDrawer: ScreenNavigationDrawer(
-          children: [
-            ...storeNavigation(
-              storeId: widget.storeId,
-              context: context,
-              collapsed: false,
-            ),
-          ],
-        ),
-        child:
-            isLoading
-                ? SizedBox(
-                  height: MediaQuery.of(context).size.height - 104,
-                  child: const Center(child: CircularProgressIndicator()),
-                )
-                : products.when(
-                  data:
-                      (data) =>
-                          data.isEmpty
-                              ? Container(
-                                padding: const EdgeInsets.all(16),
-                                height:
-                                    MediaQuery.of(context).size.height - 104,
-                                child: Center(
-                                  child: FilledButton.icon(
-                                    onPressed: () => createProduct(context),
-                                    icon: const Icon(Icons.add),
-                                    label: const Text('Create Product'),
-                                  ),
-                                ),
-                              )
-                              : SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                height:
-                                    MediaQuery.of(context).size.height - 104,
-                                child: GridView(
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount:
-                                            MediaQuery.of(context).size.width ~/
-                                            300,
-                                      ),
-                                  children:
-                                      data
-                                          .map(
-                                            (product) => NavigationCard(
-                                              title: product.productName ?? '',
-                                              subtitle:
-                                                  product.productDescription ??
-                                                  '',
-                                              isLoading:
-                                                  isProductLoading &&
-                                                  currentProduct?.id ==
-                                                      product.id,
-                                              onTap:
-                                                  () => Navigator.of(
-                                                    context,
-                                                  ).push(
-                                                    MaterialPageRoute(
-                                                      builder:
-                                                          (
-                                                            context,
-                                                          ) => ProductView(
-                                                            product: product,
-                                                            storeId:
-                                                                widget.storeId,
-                                                          ),
-                                                    ),
-                                                  ),
-                                              actions: [
-                                                NavigationCardAction(
-                                                  icon: Icons.edit,
-                                                  label: 'Edit',
-                                                  onTap:
-                                                      () =>
-                                                          editProduct(product),
-                                                ),
-                                                NavigationCardAction(
-                                                  icon: Icons.delete,
-                                                  label: 'Delete',
-                                                  color: Colors.red,
-                                                  onTap:
-                                                      () => deleteProduct(
-                                                        product,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                          .toList(),
+    return ScreenContainer(
+      navigationBar: ScreenNavigationBar(
+        title: 'Products',
+        navigationItems: [
+          ...storeNavigation(
+            storeId: widget.storeId,
+            context: context,
+            activeItem: ScreenNavigationActiveItem.products,
+          ),
+        ],
+        actions: [
+          IconButton.filled(
+            onPressed: () => createProduct(context),
+            icon: const Icon(Icons.add),
+            tooltip: 'Create Product',
+          ),
+        ],
+      ),
+      navigationDrawer: ScreenNavigationDrawer(
+        children: [
+          ...storeNavigation(
+            storeId: widget.storeId,
+            context: context,
+            collapsed: false,
+            activeItem: ScreenNavigationActiveItem.products,
+          ),
+        ],
+      ),
+      child:
+          isLoading
+              ? SizedBox(
+                height: MediaQuery.of(context).size.height - 104,
+                child: const Center(child: CircularProgressIndicator()),
+              )
+              : products.when(
+                data:
+                    (data) =>
+                        data.isEmpty
+                            ? Container(
+                              padding: const EdgeInsets.all(16),
+                              height: MediaQuery.of(context).size.height - 104,
+                              child: Center(
+                                child: FilledButton.icon(
+                                  onPressed: () => createProduct(context),
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Create Product'),
                                 ),
                               ),
-                  error: (error, stack) => Text(error.toString()),
-                  loading:
-                      () => const Center(child: CircularProgressIndicator()),
-                ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => createProduct(context),
-        label: const Text('Create Product'),
-        icon: const Icon(Icons.add),
-      ),
+                            )
+                            : SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.height - 104,
+                              child: GridView(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount:
+                                          MediaQuery.of(context).size.width ~/
+                                          300,
+                                    ),
+                                children:
+                                    data
+                                        .map(
+                                          (product) => NavigationCard(
+                                            title: product.productName ?? '',
+                                            subtitle:
+                                                product.productDescription ??
+                                                '',
+                                            isLoading:
+                                                isProductLoading &&
+                                                currentProduct?.id ==
+                                                    product.id,
+                                            onTap:
+                                                () => Navigator.of(
+                                                  context,
+                                                ).push(
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (context) =>
+                                                            ProductView(
+                                                              product: product,
+                                                              storeId:
+                                                                  widget
+                                                                      .storeId,
+                                                            ),
+                                                  ),
+                                                ),
+                                            actions: [
+                                              NavigationCardAction(
+                                                icon: Icons.edit,
+                                                label: 'Edit',
+                                                onTap:
+                                                    () => editProduct(product),
+                                              ),
+                                              NavigationCardAction(
+                                                icon: Icons.delete,
+                                                label: 'Delete',
+                                                color: Colors.red,
+                                                onTap:
+                                                    () =>
+                                                        deleteProduct(product),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
+                              ),
+                            ),
+                error: (error, stack) => Text(error.toString()),
+                loading: () => const Center(child: CircularProgressIndicator()),
+              ),
     );
   }
 }

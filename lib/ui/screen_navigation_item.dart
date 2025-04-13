@@ -35,7 +35,8 @@ class ScreenNavigationItem extends StatelessWidget {
       decoration: BoxDecoration(
         color:
             isActive ?? false
-                ? activeBackgroundColor ?? Theme.of(context).colorScheme.surface
+                ? activeBackgroundColor ??
+                    Theme.of(context).colorScheme.onTertiaryContainer
                 : backgroundColor ?? Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
       ),
@@ -49,7 +50,11 @@ class ScreenNavigationItem extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: iconColor ?? Theme.of(context).colorScheme.onSurface,
+                  color:
+                      iconColor ??
+                      (isActive ?? false
+                          ? Theme.of(context).colorScheme.secondaryContainer
+                          : Theme.of(context).colorScheme.onSurface),
                 ),
                 if (title != null && !collapsed)
                   Padding(

@@ -4,16 +4,20 @@ import 'products/products.dart';
 import 'stores.dart';
 import 'store.dart';
 
+enum ScreenNavigationActiveItem { stores, store, products }
+
 List<ScreenNavigationItem> storeNavigation({
   required String storeId,
   required BuildContext context,
   bool collapsed = true,
+  ScreenNavigationActiveItem? activeItem,
 }) {
   return [
     ScreenNavigationItem(
       icon: Icons.domain_rounded,
       title: 'Stores',
       tooltip: 'Stores',
+      isActive: activeItem == ScreenNavigationActiveItem.stores,
       collapsed: collapsed,
       onPressed:
           () => Navigator.of(context).pushReplacement(
@@ -24,6 +28,7 @@ List<ScreenNavigationItem> storeNavigation({
       icon: Icons.store_rounded,
       title: 'Store',
       tooltip: 'Store',
+      isActive: activeItem == ScreenNavigationActiveItem.store,
       collapsed: collapsed,
       onPressed:
           () => Navigator.of(context).push(
@@ -36,6 +41,7 @@ List<ScreenNavigationItem> storeNavigation({
       icon: Icons.shopping_bag_rounded,
       title: 'Products',
       tooltip: 'Products',
+      isActive: activeItem == ScreenNavigationActiveItem.products,
       collapsed: collapsed,
       onPressed:
           () => Navigator.of(context).push(

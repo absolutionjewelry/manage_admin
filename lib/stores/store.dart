@@ -48,7 +48,11 @@ class _StoreViewState extends ConsumerState<StoreView> {
             navigationBar: ScreenNavigationBar(
               title: 'Store',
               navigationItems: [
-                ...storeNavigation(storeId: store?.id ?? '', context: context),
+                ...storeNavigation(
+                  storeId: store?.id ?? '',
+                  context: context,
+                  activeItem: ScreenNavigationActiveItem.store,
+                ),
               ],
             ),
             navigationDrawer: ScreenNavigationDrawer(
@@ -57,6 +61,7 @@ class _StoreViewState extends ConsumerState<StoreView> {
                   storeId: store?.id ?? '',
                   context: context,
                   collapsed: false,
+                  activeItem: ScreenNavigationActiveItem.store,
                 ),
               ],
             ),
