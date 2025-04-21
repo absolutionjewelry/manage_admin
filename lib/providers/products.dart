@@ -200,8 +200,6 @@ class DeleteProductNotifier extends AsyncNotifier<Product?> {
 
       state = AsyncValue.error(body["message"], StackTrace.current);
     } catch (e, stacktrace) {
-      print('Error deleting product: $e');
-      print('Stacktrace: $stacktrace');
       state = AsyncValue.error(e.toString(), stacktrace);
     }
   }

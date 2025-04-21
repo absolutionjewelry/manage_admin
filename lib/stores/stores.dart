@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manage_admin/ui/content_container.dart';
 import '../models/store.dart';
 import '../providers/stores.dart';
 import '../ui/screen_container.dart';
@@ -32,6 +33,11 @@ class _StoresViewState extends ConsumerState<StoresView> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -81,18 +87,23 @@ class _StoresViewState extends ConsumerState<StoresView> {
                                       store: data[index],
                                     ),
                               )
-                              : Center(
-                                child: FilledButton.icon(
-                                  onPressed:
-                                      () => showDialog(
-                                        context: context,
-                                        builder:
-                                            (context) => CreateStoreDialog(
-                                              store: Store(),
-                                            ),
-                                      ),
-                                  icon: Icon(Icons.add),
-                                  label: Text('Create a store'),
+                              : ContentContainer(
+                                padding: const EdgeInsets.all(16),
+                                height:
+                                    MediaQuery.of(context).size.height - 104,
+                                child: Center(
+                                  child: FilledButton.icon(
+                                    onPressed:
+                                        () => showDialog(
+                                          context: context,
+                                          builder:
+                                              (context) => CreateStoreDialog(
+                                                store: Store(),
+                                              ),
+                                        ),
+                                    icon: Icon(Icons.add),
+                                    label: Text('Create a store'),
+                                  ),
                                 ),
                               ),
                   error:
