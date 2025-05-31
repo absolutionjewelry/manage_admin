@@ -4,14 +4,14 @@ part 'galleries.g.dart';
 enum GalleryType {
     Store,
     Product,
-    Publication
+    Publication,
     }
 
 @JsonSerializable()
 class Gallery {
   final String? id;
   final String? storeId;
-  //type id?
+  //TODO: put in gallery images model
   final String? position;
   @JsonKey(name: 'gallery_name')
   final String? name;
